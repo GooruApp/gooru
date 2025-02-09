@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"embed"
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
@@ -9,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func StartCmd(ctx context.Context) *cobra.Command {
+func StartCmd(ctx context.Context, migrations embed.FS) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Args:  cobra.ExactArgs(0),
@@ -20,6 +21,16 @@ func StartCmd(ctx context.Context) *cobra.Command {
 			logger, err := util.NewLogger("start")
 			if err != nil {
 				return fmt.Errorf("couldn't create a new logger: %v", err)
+			}
+
+			migrator, err := util.NewMigrator(migrations, "sqlite://booru.db")
+			if err != nil {
+				return err
+			}
+
+			err = migrator.Up()
+			if err != nil {
+				return err
 			}
 
 			api := api.NewAPI(ctx, logger)
