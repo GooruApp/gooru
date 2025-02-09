@@ -31,10 +31,17 @@ func (lwr *LoggingResponseWriter) WriteHeader(statusCode int) {
 	lwr.statusCode = statusCode
 }
 
+func (a *api) corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (a *api) requestIdMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := uuid.New().String()
-		w.Header().Set("X-Request-Id", id)
+		w.Header().Set("gooru-request-id", id)
 		next.ServeHTTP(w, r)
 	})
 }

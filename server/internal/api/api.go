@@ -23,6 +23,7 @@ func (a *api) Server(port int) *http.Server {
 	stack := createMiddlewareStack(
 		a.loggingMiddleware,
 		a.requestIdMiddleware,
+		a.corsMiddleware,
 	)
 
 	return &http.Server{
