@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "golang.go"
+        "golang.go",
+        "qwtel.sqlite-viewer"
     ]
 }

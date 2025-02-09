@@ -1,0 +1,56 @@
+services:
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    container_name: client
+    command: sh -c "pnpm run dev"
+    working_dir: /app
+    restart: unless-stopped
+    environment:
+      VITE_USE_POLLING: ${VITE_USE_POLLING}
+    volumes:
+      - ./client:/app
+      - /app/node_modules/
+    ports:
+      - "5173:5173"
+    logging: &logging-template
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+  server:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    container_name: server
+    hostname: gooru-server
+    command: sh -c "${AIR_START_COMMAND:-air start}"
+    working_dir: /app
+    restart: unless-stopped
+    environment:
+      DATABASE_BACKEND: ${DATABASE_BACKEND:-sqlite}
+    volumes:
+      - ./server:/app
+    ports:
+      - "8000:8000"
+    logging: *logging-template
+
+  postgres:
+    image: postgres:17.2-alpine
+    container_name: postgres
+    hostname: gooru-db
+    environment:
+      POSTGRES_DB: gooru
+      POSTGRES_USER: gooru_dev
+      POSTGRES_PASSWORD: gooru_pwd
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5444:5444"
+    restart: unless-stopped
+    logging: *logging-template
+
+volumes:
+  postgres-data:
+
