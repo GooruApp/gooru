@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
+	"github.com/GooruApp/gooru/server/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,12 @@ func StartCmd(ctx context.Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			port := 8000
 
-			api := api.NewAPI(ctx)
+			logger, err := util.NewLogger("start")
+			if err != nil {
+				return fmt.Errorf("couldn't create a new logger: %v", err)
+			}
+
+			api := api.NewAPI(ctx, logger)
 			srv := api.Server(port)
 
 			go func() { _ = srv.ListenAndServe() }()

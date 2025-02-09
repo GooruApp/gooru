@@ -13,9 +13,10 @@ type api struct {
 	logger *zap.Logger
 }
 
-func NewAPI(ctx context.Context) *api {
+func NewAPI(ctx context.Context, logger *zap.Logger) *api {
 	return &api{
-		ctx: ctx,
+		ctx:    ctx,
+		logger: logger,
 	}
 }
 

@@ -1,11 +1,11 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type Middleware func(http.Handler) http.Handler
@@ -57,6 +57,25 @@ func (a *api) loggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(lwr, r)
 
-		log.Println(lwr.statusCode, r.Method, r.URL.Path, time.Since(start))
+		duration := time.Since(start).Milliseconds()
+
+		fields := []zap.Field{
+			zap.Int64("duration", duration),
+			zap.String("method", r.Method),
+			zap.Int("status", lwr.statusCode),
+			zap.String("uri", r.RequestURI),
+			zap.String("requestId", lwr.Header().Get("gooru-request-id")),
+		}
+
+		if lwr.statusCode == http.StatusOK {
+			a.logger.Info("", fields...)
+		} else {
+			// We should log the error message if one occurs on an endpoint
+			// This should be attached to the response in the http handler as a header
+			// named "gooru-error"
+			//
+			// err := lwr.Header().Get("gooru-error")
+			a.logger.Error("<err>", fields...)
+		}
 	})
 }
