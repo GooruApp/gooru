@@ -1,6 +1,7 @@
 */tmp
 */_notes
 
-.air.toml
-.DS_Store
+*.exe
 *.db
+
+.DS_Store
