@@ -51,12 +51,30 @@ case $1 in
         docker compose logs -f --tail 1000
         ;;
 
+    desktop )
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+        cd app
+        if [ "$2" = "dev" ]; then
+            echo "Launching Wails app in dev mode..."
+            wails dev
+        elif [ "$2" = "build" ]; then
+            echo "Building Wails app..."
+            wails build
+        else
+            echo "Invalid option provided."
+            exit 1
+        fi
+        ;;
+
     help )
         echo -e "\nUsage:"
         echo -e "\t start [cloud] \t\t Creates, runs, and attaches to the dev stack. Starts cloud version if specified."
         echo -e "\t stop \t\t\t Stops and removes existing containers for dev stack."
         echo -e "\t restage [cloud] \t Runs the stop command followed by the start command. Fully tears down containers."
+        echo -e "\t restart [<container>] \t Restarts the given container, or all containers if not specified."
         echo -e "\t attach  \t\t Attaches to the running stack."
+        echo -e "\t desktop [dev|build] \t Runs a development Wails app in 'dev' mode, or builds a Wails executable in 'build' mode."
         ;;
     
     * )
