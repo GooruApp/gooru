@@ -1,13 +1,10 @@
 package logger
 
 import (
-	"github.com/GooruApp/gooru/server/internal/environment"
 	"go.uber.org/zap"
 )
 
-func New(service string, env *environment.Environment) (*zap.Logger, error) {
-	appEnv := env.AppEnv()
-
+func New(service string, appEnv string) (*zap.Logger, error) {
 	var logger *zap.Logger
 	var err error
 

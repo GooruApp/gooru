@@ -1,13 +1,13 @@
-package environment
+package env
 
-type Environment struct {
+type env struct {
 	appEnv    string
 	dbConnStr string
 	port      int
 }
 
-func Get() (*Environment, error) {
-	env := &Environment{
+func Get() (*env, error) {
+	env := &env{
 		appEnv:    initAppEnv(),
 		dbConnStr: initDBConnStr(),
 		port:      initPort(),
@@ -16,14 +16,14 @@ func Get() (*Environment, error) {
 	return env, nil
 }
 
-func (e *Environment) AppEnv() string {
+func (e *env) AppEnv() string {
 	return e.appEnv
 }
 
-func (e *Environment) DBConnStr() string {
+func (e *env) DBConnStr() string {
 	return e.dbConnStr
 }
 
-func (e *Environment) Port() int {
+func (e *env) Port() int {
 	return e.port
 }

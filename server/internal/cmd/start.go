@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
-	"github.com/GooruApp/gooru/server/internal/environment"
+	"github.com/GooruApp/gooru/server/internal/env"
 	"github.com/GooruApp/gooru/server/internal/logger"
 	"github.com/GooruApp/gooru/server/internal/migrator"
 	"github.com/spf13/cobra"
@@ -18,12 +18,12 @@ func StartCmd(ctx context.Context, migrations embed.FS) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Short: "Runs the REST API",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			env, err := environment.Get()
+			env, err := env.Get()
 			if err != nil {
 				return fmt.Errorf("couldn't get the env: %v", err)
 			}
 
-			logger, err := logger.New("start", env)
+			logger, err := logger.New("start", env.AppEnv())
 			if err != nil {
 				return fmt.Errorf("couldn't create a new logger: %v", err)
 			}
