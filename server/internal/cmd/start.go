@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
+	"github.com/GooruApp/gooru/server/internal/environment"
 	"github.com/GooruApp/gooru/server/internal/logger"
 	"github.com/GooruApp/gooru/server/internal/migrator"
 	"github.com/spf13/cobra"
@@ -17,29 +18,32 @@ func StartCmd(ctx context.Context, migrations embed.FS) *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		Short: "Runs the REST API",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			port := 8000
+			env, err := environment.Get()
+			if err != nil {
+				return fmt.Errorf("couldn't get the env: %v", err)
+			}
 
-			logger, err := logger.New("start")
+			logger, err := logger.New("start", env)
 			if err != nil {
 				return fmt.Errorf("couldn't create a new logger: %v", err)
 			}
 
-			migrator, err := migrator.New(migrations, "sqlite://booru.db")
+			migrator, err := migrator.New(migrations, env.DBConnStr())
 			if err != nil {
-				return err
+				return fmt.Errorf("couldn't create a new migrator: %v", err)
 			}
 
 			err = migrator.Up()
 			if err != nil {
-				return err
+				return fmt.Errorf("error occured when running migrations: %v", err)
 			}
 
 			api := api.NewAPI(ctx, logger)
-			srv := api.Server(port)
+			srv := api.Server(env.Port())
 
 			go func() { _ = srv.ListenAndServe() }()
 
-			fmt.Printf("started api on port %d\n", port)
+			fmt.Printf("Started API on port: %d\n", env.Port())
 
 			// Blocks until a value is passed on the done ch
 			<-ctx.Done()
