@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 
-	"github.com/GooruApp/gooru/server/internal/cmd"
+	"github.com/GooruApp/gooru/server/pkg/start"
 )
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer cancel()
 
-	result := cmd.Execute(ctx)
+	err := start.Run(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v", err)
+		os.Exit(1)
+	}
 
-	os.Exit(result)
+	os.Exit(0)
 }
