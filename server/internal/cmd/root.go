@@ -2,12 +2,11 @@ package cmd
 
 import (
 	"context"
-	"embed"
 
 	"github.com/spf13/cobra"
 )
 
-func Execute(ctx context.Context, migrations embed.FS) int {
+func Execute(ctx context.Context) int {
 	rootCmd := &cobra.Command{
 		Use:   "gooru [command]",
 		Short: "gooru",
@@ -21,7 +20,7 @@ func Execute(ctx context.Context, migrations embed.FS) int {
 		},
 	}
 
-	rootCmd.AddCommand(StartCmd(ctx, migrations))
+	rootCmd.AddCommand(StartCmd(ctx))
 
 	if err := rootCmd.Execute(); err != nil {
 		return 1
