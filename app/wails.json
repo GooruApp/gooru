@@ -4,7 +4,7 @@
   "outputfilename": "Gooru",
   "frontend:dir": "../client",
   "frontend:install": "pnpm install",
-  "frontend:build": "pnpm run build",
+  "frontend:build": "pnpm run build:wails",
   "frontend:dev:watcher": "pnpm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
