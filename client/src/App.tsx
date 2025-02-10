@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import { Greet } from "./wailsjs/go/main/App";
+import { Greet } from "../wailsjs/go/main/App";
 
 function App() {
   const [resultText, setResultText] = useState(
@@ -43,10 +43,10 @@ function App() {
       <div id="result" className="result">
         {resultText}
       </div>
-      <div id="input" className="input-box">
+      <div id="input" className="input-box flex gap-4 p-4">
         <input
           id="name"
-          className="input"
+          className="input border px-2"
           onChange={updateName}
           autoComplete="off"
           name="input"
