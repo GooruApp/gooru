@@ -6,6 +6,10 @@ toolchain go1.23.6
 
 require github.com/wailsapp/wails/v2 v2.9.2
 
+// replace github.com/wailsapp/wails/v2 v2.9.2 => C:\Users\main\go\pkg\mod
+
+replace github.com/GooruApp/gooru/server => ../server
+
 require (
 	github.com/golang-migrate/migrate/v4 v4.18.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -61,5 +65,3 @@ require (
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
-
-// replace github.com/wailsapp/wails/v2 v2.9.2 => C:\Users\main\go\pkg\mod

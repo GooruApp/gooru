@@ -54,13 +54,17 @@ case $1 in
     desktop )
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
-        cd app
+        
         if [ "$2" = "dev" ]; then
-            echo "Launching Wails app in dev mode..."
+            ./run.sh stop || true
+
+            printf "\nLaunching Wails app in dev mode..."
+            cd app
+            sed -i "2s@.*@  \"reloaddirs\": \"$(find ../server/ -type d -print | paste -sd "," -)\",@" wails.json
             wails dev
         elif [ "$2" = "build" ]; then
             echo "Building Wails app..."
-            wails build
+            cd app && wails build
         else
             echo "Invalid option provided."
             exit 1
