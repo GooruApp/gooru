@@ -1,5 +1,5 @@
 {
-  "reloaddirs": "../server/,../server/internal,../server/internal/api,../server/internal/env,../server/internal/logger,../server/internal/migrator,../server/internal/migrator/migrations,../server/internal/migrator/migrations/sqlite,../server/pkg,../server/pkg/start,../server/tmp",
+  "reloaddirs": "../server,../server/internal,../server/internal/api,../server/internal/env,../server/internal/logger,../server/internal/migrator,../server/internal/migrator/migrations,../server/internal/migrator/migrations/sqlite,../server/pkg,../server/pkg/start,../server/tmp",
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "Gooru",
   "outputfilename": "Gooru",

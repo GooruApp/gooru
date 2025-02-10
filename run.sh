@@ -53,18 +53,18 @@ case $1 in
 
     desktop )
         go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
         
         if [ "$2" = "dev" ]; then
             ./run.sh stop || true
 
             printf "\nLaunching Wails app in dev mode..."
             cd app
-            sed -i "2s@.*@  \"reloaddirs\": \"$(find ../server/ -type d -print | paste -sd "," -)\",@" wails.json
-            wails dev
+            sed -i '' "2s@.*@  \"reloaddirs\": \"$(find ../server -type d -print | sort | paste -sd "," -)\",@" wails.json
+            wails dev || echo "Unable to launch Wails - is GOPATH set correctly?"
         elif [ "$2" = "build" ]; then
             echo "Building Wails app..."
-            cd app && wails build
+            cd app
+            wails build || echo "Unable to launch Wails - is GOPATH set correctly?"
         else
             echo "Invalid option provided."
             exit 1
