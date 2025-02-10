@@ -1,21 +1,17 @@
 package logger
 
 import (
-	"os"
-
 	"go.uber.org/zap"
 )
 
-func New(service string) (*zap.Logger, error) {
-	env := os.Getenv("ENV")
-
+func New(service string, appEnv string) (*zap.Logger, error) {
 	var logger *zap.Logger
 	var err error
 
-	switch env {
+	switch appEnv {
 	case "production":
 		logger, err = zap.NewProduction(zap.Fields(
-			zap.String("env", env),
+			zap.String("env", appEnv),
 			zap.String("service", service),
 		))
 	default:

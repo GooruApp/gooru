@@ -11,6 +11,9 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
+//go:embed migrations/*/*.sql
+var migrationsFS embed.FS
+
 type MigratorFlavor string
 
 const (
@@ -20,11 +23,10 @@ const (
 
 type migrator struct {
 	flavor MigratorFlavor
-	fs     embed.FS
 	url    string
 }
 
-func New(fs embed.FS, url string) (*migrator, error) {
+func New(url string) (*migrator, error) {
 	before, _, found := strings.Cut(url, "://")
 	if !found {
 		return nil, fmt.Errorf("could not parse db flavor from provided url")
@@ -43,7 +45,6 @@ func New(fs embed.FS, url string) (*migrator, error) {
 
 	migrator := &migrator{
 		flavor: flavor,
-		fs:     fs,
 		url:    url,
 	}
 
@@ -53,7 +54,7 @@ func New(fs embed.FS, url string) (*migrator, error) {
 func (m *migrator) Up() error {
 	path := fmt.Sprintf("migrations/%s", m.flavor)
 
-	source, err := iofs.New(m.fs, path)
+	source, err := iofs.New(migrationsFS, path)
 	if err != nil {
 		return err
 	}

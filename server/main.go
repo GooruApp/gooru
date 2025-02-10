@@ -2,21 +2,22 @@ package main
 
 import (
 	"context"
-	"embed"
+	"fmt"
 	"os"
 	"os/signal"
 
-	"github.com/GooruApp/gooru/server/internal/cmd"
+	"github.com/GooruApp/gooru/server/pkg/start"
 )
-
-//go:embed migrations/*/*.sql
-var migrations embed.FS
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer cancel()
 
-	result := cmd.Execute(ctx, migrations)
+	err := start.Run(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v", err)
+		os.Exit(1)
+	}
 
-	os.Exit(result)
+	os.Exit(0)
 }
