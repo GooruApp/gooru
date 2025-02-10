@@ -11,8 +11,13 @@ func Execute(ctx context.Context, migrations embed.FS) int {
 	rootCmd := &cobra.Command{
 		Use:   "gooru [command]",
 		Short: "gooru",
-		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Help()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			err := cmd.Help()
+			if err != nil {
+				return err
+			}
+
+			return nil
 		},
 	}
 

@@ -1,4 +1,4 @@
-package util
+package logger
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewLogger(service string) (*zap.Logger, error) {
+func New(service string) (*zap.Logger, error) {
 	env := os.Getenv("ENV")
 
 	var logger *zap.Logger

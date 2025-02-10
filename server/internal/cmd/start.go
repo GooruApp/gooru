@@ -6,7 +6,8 @@ import (
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
-	"github.com/GooruApp/gooru/server/internal/util"
+	"github.com/GooruApp/gooru/server/internal/logger"
+	"github.com/GooruApp/gooru/server/internal/migrator"
 	"github.com/spf13/cobra"
 )
 
@@ -18,12 +19,12 @@ func StartCmd(ctx context.Context, migrations embed.FS) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			port := 8000
 
-			logger, err := util.NewLogger("start")
+			logger, err := logger.New("start")
 			if err != nil {
 				return fmt.Errorf("couldn't create a new logger: %v", err)
 			}
 
-			migrator, err := util.NewMigrator(migrations, "sqlite://booru.db")
+			migrator, err := migrator.New(migrations, "sqlite://booru.db")
 			if err != nil {
 				return err
 			}

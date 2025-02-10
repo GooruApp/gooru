@@ -1,4 +1,4 @@
-package util
+package migrator
 
 import (
 	"embed"
@@ -24,7 +24,7 @@ type migrator struct {
 	url    string
 }
 
-func NewMigrator(fs embed.FS, url string) (*migrator, error) {
+func New(fs embed.FS, url string) (*migrator, error) {
 	before, _, found := strings.Cut(url, "://")
 	if !found {
 		return nil, fmt.Errorf("could not parse db flavor from provided url")
