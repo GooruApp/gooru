@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .vite/*
+package.json.md5
 
 # Editor directories and files
 .vscode/*
