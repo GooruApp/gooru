@@ -75,8 +75,8 @@ case $1 in
         fi
         ;;
 
-    create )
-        if [ "$2" = "migration" ]; then
+    migrate )
+        if [ "$2" = "create" ]; then
             if [ "$3" = "sqlite" ]; then
                 if [ -z "$4" ]; then
                     echo "Must provide a sequence name for the migration."
