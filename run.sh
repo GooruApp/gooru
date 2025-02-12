@@ -59,11 +59,6 @@ case $1 in
 
             printf "\nLaunching Wails app in dev mode..."
             cd app
-            if [ is_windows ]; then
-                sed -i "2s@.*@  \"reloaddirs\": \"$(find ../server -type d -print | sort | paste -sd "," -)\",@" wails.json
-            else
-                sed -i '' "2s@.*@  \"reloaddirs\": \"$(find ../server -type d -print | sort | paste -sd "," -)\",@" wails.json
-            fi
             wails dev || echo "Unable to launch Wails - is GOPATH set correctly?"
         elif [ "$2" = "build" ]; then
             echo "Building Wails app..."
