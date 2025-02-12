@@ -75,14 +75,49 @@ case $1 in
         fi
         ;;
 
+    create )
+        if [ "$2" = "migration" ]; then
+            if [ "$3" = "sqlite" ]; then
+                if [ -z "$4" ]; then
+                    echo "Must provide a sequence name for the migration."
+                    ./run.sh help
+                    exit 1
+                fi
+
+                echo "Creating new sqlite migration with with sequence name $4..."
+                migrate create -ext sql -dir server/internal/migrator/migrations/sqlite -seq $4
+            
+            elif [ "$3" = "postgres" ]; then
+                if [ -z "$4" ]; then
+                    echo "Must provide a sequence name for the migration."
+                    ./run.sh help
+                    exit 1
+                fi
+                
+                echo "Creating new postgres migration with with sequence name $4..."
+                migrate create -ext sql -dir server/internal/migrator/migrations/postgres -seq $4
+            
+            else 
+                echo "Must provide either sqlite or postgres as the database target."
+                ./run.sh help
+                exit 1
+            fi
+        else 
+            echo "Must specify the resource to create."
+            ./run.sh help
+            exit 1
+        fi
+        ;;
+
     help )
         echo -e "\nUsage:"
-        echo -e "\t start [cloud] \t\t Creates, runs, and attaches to the dev stack. Starts cloud version if specified."
-        echo -e "\t stop \t\t\t Stops and removes existing containers for dev stack."
-        echo -e "\t restage [cloud] \t Runs the stop command followed by the start command. Fully tears down containers."
-        echo -e "\t restart [<container>] \t Restarts the given container, or all containers if not specified."
-        echo -e "\t attach  \t\t Attaches to the running stack."
-        echo -e "\t desktop [dev|build] \t Runs a development Wails app in 'dev' mode, or builds a Wails executable in 'build' mode."
+        echo -e "\t start [cloud] \t\t\t\t\t Creates, runs, and attaches to the dev stack. Starts cloud version if specified."
+        echo -e "\t stop \t\t\t\t\t\t Stops and removes existing containers for dev stack."
+        echo -e "\t restage [cloud] \t\t\t\t Runs the stop command followed by the start command. Fully tears down containers."
+        echo -e "\t restart [<container>] \t\t\t\t Restarts the given container, or all containers if not specified."
+        echo -e "\t attach  \t\t\t\t\t Attaches to the running stack."
+        echo -e "\t desktop [dev|build] \t\t\t\t Runs a development Wails app in 'dev' mode, or builds a Wails executable in 'build' mode."
+        echo -e "\t create [migration] [sqlite|postgres] [<seq>] \t Creates a new new database migration for the specified database."
         ;;
     
     * )
