@@ -82,7 +82,7 @@ case $1 in
                 fi
 
                 echo "Creating new $3 migration with with sequence name $4..."
-                migrate create -ext sql -dir "server/internal/migrator/migrations/$3" -seq $4
+                migrate create -ext sql -dir "server/migrations/$3" -seq $4
 
             else 
                 echo "Must provide either sqlite or postgres as the database target."
@@ -101,11 +101,11 @@ case $1 in
 
                 if [ ! -z "$5" ]; then
                     echo "Applying $5 $2 migrations for $3..."
-                    migrate -path "server/internal/migrator/migrations/$3" -database "$3://$4" $2 $5
+                    migrate -path "server/migrations/$3" -database "$3://$4" $2 $5
                     
                 else
                     echo "Applying all $2 migrations for $3..."
-                    migrate -path "server/internal/migrator/migrations/$3" -database "$3://$4" $2
+                    migrate -path "server/migrations/$3" -database "$3://$4" $2
                 
                 fi
 

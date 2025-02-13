@@ -5,25 +5,24 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/GooruApp/gooru/server/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/database/sqlite"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-//go:embed migrations/*/*.sql
-var migrationsFS embed.FS
-
-type MigratorFlavor string
+type Flavor string
 
 const (
-	postgres MigratorFlavor = "postgres"
-	sqlite   MigratorFlavor = "sqlite"
+	postgres Flavor = "postgres"
+	sqlite   Flavor = "sqlite"
 )
 
 type migrator struct {
-	flavor MigratorFlavor
+	flavor Flavor
 	url    string
+	fs     embed.FS
 }
 
 func New(url string) (*migrator, error) {
@@ -32,13 +31,16 @@ func New(url string) (*migrator, error) {
 		return nil, fmt.Errorf("could not parse db flavor from provided url")
 	}
 
-	var flavor MigratorFlavor
+	var flavor Flavor
+	var fs embed.FS
 
 	switch before {
 	case "sqlite":
 		flavor = sqlite
+		fs = migrations.SQLiteMigrations
 	case "postgres":
 		flavor = postgres
+		fs = migrations.PGMigrations
 	default:
 		return nil, fmt.Errorf("%s is not supported", before)
 	}
@@ -46,15 +48,14 @@ func New(url string) (*migrator, error) {
 	migrator := &migrator{
 		flavor: flavor,
 		url:    url,
+		fs:     fs,
 	}
 
 	return migrator, nil
 }
 
 func (m *migrator) Up() error {
-	path := fmt.Sprintf("migrations/%s", m.flavor)
-
-	source, err := iofs.New(migrationsFS, path)
+	source, err := iofs.New(m.fs, string(m.flavor))
 	if err != nil {
 		return err
 	}
@@ -72,4 +73,4 @@ func (m *migrator) Up() error {
 	return nil
 }
 
-func (m *migrator) Flavor() MigratorFlavor { return m.flavor }
+func (m *migrator) Flavor() Flavor { return m.flavor }
