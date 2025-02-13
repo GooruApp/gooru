@@ -71,11 +71,13 @@ case $1 in
         ;;
 
     migrate )
+        go install -tags 'postgres sqlite' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
         if [ "$2" = "create" ]; then
             if [ "$3" = "sqlite" ] || [ "$3" = "postgres" ]; then
                 if [ -z "$4" ]; then
                     echo "Must specify a sequence name for the migration."
-                    ./run.sh help
+                    ./run.sh migrate help
                     exit 1
                 fi
 
@@ -84,7 +86,7 @@ case $1 in
 
             else 
                 echo "Must provide either sqlite or postgres as the database target."
-                ./run.sh help
+                ./run.sh migrate help
                 exit 1
 
             fi
@@ -93,7 +95,7 @@ case $1 in
             if [ "$3" = "sqlite" ] || [ "$3" = "postgres" ]; then
                 if [ -z "$4" ]; then
                     echo "Must specify the path to the databse."
-                    ./run.sh help
+                    ./run.sh migrate help
                     exit 1
                 fi
 
@@ -109,7 +111,7 @@ case $1 in
 
             else 
                 echo "Must provide either sqlite or postgres as the database target."
-                ./run.sh help
+                ./run.sh migrate help
                 exit 1
 
             fi
@@ -125,12 +127,12 @@ case $1 in
             echo -e "\t create [sqlite|postgres] [<seq>] \t\t Creates a new up and down migration for the given database with the given sequence name."
             echo -e "\t up [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} up migrations for given database with given database path."
             echo -e "\t down [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} down migrations for given database with given database path."
-            echo -e "\t next [sqlite|postgres] [<dbpath>] \t\t Runs the next up migration for given database with given database path."
-            echo -e "\t previous [sqlite|postgres] [<dbpath>] \t\t Runs next down migration for given database with given database path."
+            echo -e "\t next [sqlite|postgres] [<dbpath>] \t\t Migrates the database with given database path to the next revision."
+            echo -e "\t previous [sqlite|postgres] [<dbpath>] \t\t Migrates the database with given database path to the previous revision."
 
         else 
-            echo "Invalid ."
-            ./run.sh help
+            echo "Invalid option provided."
+            ./run.sh migrate help
             exit 1
 
         fi
