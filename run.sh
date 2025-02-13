@@ -77,47 +77,79 @@ case $1 in
 
     migrate )
         if [ "$2" = "create" ]; then
-            if [ "$3" = "sqlite" ]; then
+            if [ "$3" = "sqlite" ] || [ "$3" = "postgres" ]; then
                 if [ -z "$4" ]; then
-                    echo "Must provide a sequence name for the migration."
+                    echo "Must specify a sequence name for the migration."
                     ./run.sh help
                     exit 1
                 fi
 
-                echo "Creating new sqlite migration with with sequence name $4..."
-                migrate create -ext sql -dir server/internal/migrator/migrations/sqlite -seq $4
-            
-            elif [ "$3" = "postgres" ]; then
-                if [ -z "$4" ]; then
-                    echo "Must provide a sequence name for the migration."
-                    ./run.sh help
-                    exit 1
-                fi
-                
-                echo "Creating new postgres migration with with sequence name $4..."
-                migrate create -ext sql -dir server/internal/migrator/migrations/postgres -seq $4
-            
+                echo "Creating new $3 migration with with sequence name $4..."
+                migrate create -ext sql -dir "server/internal/migrator/migrations/$3" -seq $4
+
             else 
                 echo "Must provide either sqlite or postgres as the database target."
                 ./run.sh help
                 exit 1
+
             fi
+
+        elif [ "$2" = "up" ] || [ "$2" = "down" ]; then
+            if [ "$3" = "sqlite" ] || [ "$3" = "postgres" ]; then
+                if [ -z "$4" ]; then
+                    echo "Must specify the path to the databse."
+                    ./run.sh help
+                    exit 1
+                fi
+
+                if [ ! -z "$5" ]; then
+                    echo "Applying $5 $2 migrations for $3..."
+                    migrate -path "server/internal/migrator/migrations/$3" -database "$3://$4" $2 $5
+                    
+                else
+                    echo "Applying all $2 migrations for $3..."
+                    migrate -path "server/internal/migrator/migrations/$3" -database "$3://$4" $2
+                
+                fi
+
+            else 
+                echo "Must provide either sqlite or postgres as the database target."
+                ./run.sh help
+                exit 1
+
+            fi
+
+        elif [ "$2" = "next" ]; then
+            ./run.sh migrate up $3 $4 1
+
+        elif [ "$2" = "previous" ]; then
+            ./run.sh migrate down $3 $4 1
+
+        elif [ "$2" = "help" ]; then
+            echo -e "\n 'migrate' usage:"
+            echo -e "\t create [sqlite|postgres] [<seq>] \t\t Creates a new up and down migration for the given database with the given sequence name."
+            echo -e "\t up [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} up migrations for given database with given database path."
+            echo -e "\t down [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} down migrations for given database with given database path."
+            echo -e "\t next [sqlite|postgres] [<dbpath>] \t\t Runs the next up migration for given database with given database path."
+            echo -e "\t previous [sqlite|postgres] [<dbpath>] \t\t Runs next down migration for given database with given database path."
+
         else 
-            echo "Must specify the resource to create."
+            echo "Invalid ."
             ./run.sh help
             exit 1
+
         fi
         ;;
 
     help )
         echo -e "\nUsage:"
-        echo -e "\t start [cloud] \t\t\t\t\t Creates, runs, and attaches to the dev stack. Starts cloud version if specified."
-        echo -e "\t stop \t\t\t\t\t\t Stops and removes existing containers for dev stack."
-        echo -e "\t restage [cloud] \t\t\t\t Runs the stop command followed by the start command. Fully tears down containers."
-        echo -e "\t restart [<container>] \t\t\t\t Restarts the given container, or all containers if not specified."
-        echo -e "\t attach  \t\t\t\t\t Attaches to the running stack."
-        echo -e "\t desktop [dev|build] \t\t\t\t Runs a development Wails app in 'dev' mode, or builds a Wails executable in 'build' mode."
-        echo -e "\t create [migration] [sqlite|postgres] [<seq>] \t Creates a new new database migration for the specified database."
+        echo -e "\t start [cloud] \t\t Creates, runs, and attaches to the dev stack. Starts cloud version if specified."
+        echo -e "\t stop \t\t\t Stops and removes existing containers for dev stack."
+        echo -e "\t restage [cloud] \t Runs the stop command followed by the start command. Fully tears down containers."
+        echo -e "\t restart [<container>] \t Restarts the given container, or all containers if not specified."
+        echo -e "\t attach  \t\t Attaches to the running stack."
+        echo -e "\t desktop [dev|build] \t Runs a development Wails app in 'dev' mode, or builds a Wails executable in 'build' mode."
+        echo -e "\t migrate [help|...]  \t Various migrate related actions. Run 'migrate help' for more details."
         ;;
     
     * )
