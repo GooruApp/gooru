@@ -63,12 +63,12 @@ func (s *setting[T]) init() *T {
 	envValue, found := os.LookupEnv(envVar)
 
 	if !found {
-		fmt.Printf("WARN: environment variable %v not set, defaulting to '%v'", envVar, s.defaultValue)
+		fmt.Printf("WARN: environment variable %v not set, defaulting to '%v'\n", envVar, s.defaultValue)
 		return &s.defaultValue
 	} else {
 		validValue, err := s.initValue(envValue)
 		if err != nil {
-			fmt.Printf("WARN: invalid value (%v) for environment variable %v: %v; reverting to default value '%v'", envValue, envVar, err, s.defaultValue)
+			fmt.Printf("WARN: invalid value (%v) for environment variable %v: %v; reverting to default value '%v'\n", envValue, envVar, err, s.defaultValue)
 			return &s.defaultValue
 		} else {
 			return &validValue
