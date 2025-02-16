@@ -11,12 +11,6 @@ import (
 )
 
 func Run(ctx context.Context) error {
-	// env, err := env.AppEnv.Test
-	// if err != nil {
-	// 	return fmt.Errorf("couldn't get the env: %v", err)
-	// }
-	config.Settings.Mode.Get()
-
 	logger, err := logger.New("start", config.Settings.Mode.Get())
 	if err != nil {
 		return fmt.Errorf("couldn't create a new logger: %v", err)

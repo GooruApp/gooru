@@ -31,6 +31,7 @@ services:
     environment:
       GOORU_MODE: ${GOORU_MODE:-dev}
       GOORU_DB_CONNECTION: ${GOORU_DB_CONNECTION:-sqlite://booru.db}
+      GOORU_DB_BACKEND: ${GOORU_DB_BACKEND:-sqlite}
       GOORU_PORT: ${GOORU_PORT:-8000}
     volumes:
       - ./server:/app

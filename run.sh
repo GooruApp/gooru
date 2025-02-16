@@ -23,12 +23,14 @@ case $1 in
             echo "Starting cloud ${APP_NAME} stack..."
             export GOORU_MODE="dev"
             export GOORU_DB_CONNECTION="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@gooru-db:5432/${POSTGRES_DB}?sslmode=disable"
+            export GOORU_DB_BACKEND="postgres"
             export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server postgres
         else
             echo "Starting local ${APP_NAME} stack..."
             export GOORU_MODE="dev"
             export GOORU_DB_CONNECTION="sqlite://booru.db"
+            export GOORU_DB_BACKEND="sqlite"
             export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server
         fi
@@ -100,43 +102,21 @@ case $1 in
             fi
 
         elif [ "$2" = "up" ] || [ "$2" = "down" ]; then
-            if [ "$3" = "sqlite" ] || [ "$3" = "postgres" ]; then
-                if [ -z "$4" ]; then
-                    echo "Must specify the path to the databse."
-                    ./run.sh migrate help
-                    exit 1
-                fi
-
-                if [ ! -z "$5" ]; then
-                    echo "Applying $5 $2 migrations for $3..."
-                    migrate -path "server/migrations/$3" -database "$3://$4" $2 $5
-                    
-                else
-                    echo "Applying all $2 migrations for $3..."
-                    migrate -path "server/migrations/$3" -database "$3://$4" $2
-                
-                fi
-
-            else 
-                echo "Must provide either sqlite or postgres as the database target."
-                ./run.sh migrate help
-                exit 1
-
-            fi
+            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_BACKEND)' -database $(docker exec server printenv GOORU_DB_CONNECTION) $2 $3"
 
         elif [ "$2" = "next" ]; then
-            ./run.sh migrate up $3 $4 1
+            ./run.sh migrate up $3 1
 
         elif [ "$2" = "previous" ]; then
-            ./run.sh migrate down $3 $4 1
+            ./run.sh migrate down $3 1
 
         elif [ "$2" = "help" ]; then
             echo -e "\n 'migrate' usage:"
-            echo -e "\t create [sqlite|postgres] [<seq>] \t\t Creates a new up and down migration for the given database with the given sequence name."
-            echo -e "\t up [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} up migrations for given database with given database path."
-            echo -e "\t down [sqlite|postgres] [<dbpath>] [{n}]  \t Runs all or {n} down migrations for given database with given database path."
-            echo -e "\t next [sqlite|postgres] [<dbpath>] \t\t Migrates the database with given database path to the next revision."
-            echo -e "\t previous [sqlite|postgres] [<dbpath>] \t\t Migrates the database with given database path to the previous revision."
+            echo -e "\t create [sqlite|postgres] [<seq>] \t Creates a new up and down migration for the given database with the given sequence name."
+            echo -e "\t up [{n}]  \t\t\t\t Runs all or {n} up migrations."
+            echo -e "\t down [{n}]  \t\t\t\t Runs all or {n} down migrations."
+            echo -e "\t next \t\t\t\t\t Migrates the database to the next revision."
+            echo -e "\t previous \t\t\t\t Migrates the database to the previous revision."
 
         else 
             echo "Invalid option provided."
