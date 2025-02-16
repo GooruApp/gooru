@@ -29,11 +29,13 @@ services:
     working_dir: /app
     restart: unless-stopped
     environment:
-      DATABASE_BACKEND: ${DATABASE_BACKEND:-sqlite}
+      GOORU_MODE: ${GOORU_MODE:-dev}
+      GOORU_DB_CONNECTION: ${GOORU_DB_CONNECTION:-sqlite://booru.db}
+      GOORU_PORT: ${GOORU_PORT:-8000}
     volumes:
       - ./server:/app
     ports:
-      - "8000:8000"
+      - "${GOORU_PORT:-8000}:${GOORU_PORT:-8000}"
     logging: *logging-template
 
   postgres:
@@ -41,16 +43,15 @@ services:
     container_name: postgres
     hostname: gooru-db
     environment:
-      POSTGRES_DB: gooru
-      POSTGRES_USER: gooru_dev
-      POSTGRES_PASSWORD: gooru_pwd
+      POSTGRES_DB: ${POSTGRES_DB:-gooru}
+      POSTGRES_USER: ${POSTGRES_USER:-gooru_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gooru_pwd}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5444:5444"
+      - "5444:5432"
     restart: unless-stopped
     logging: *logging-template
 
 volumes:
   postgres-data:
-

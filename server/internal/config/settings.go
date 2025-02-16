@@ -29,8 +29,8 @@ var Settings = struct {
 		envVar:       "DB_CONNECTION",
 		defaultValue: "sqlite://booru.db",
 		initValue: func(conn string) (string, error) {
-			if !strings.HasPrefix(conn, "sqlite://") && !strings.HasPrefix(conn, "postgresql://") {
-				return "", errors.New("invalid protocol, must be 'sqlite' or 'postgresql'")
+			if !strings.HasPrefix(conn, "sqlite://") && !strings.HasPrefix(conn, "postgres://") {
+				return "", errors.New("invalid protocol, must be 'sqlite' or 'postgres'")
 			}
 			return conn, nil
 		},
@@ -71,6 +71,7 @@ func (s *setting[T]) init() *T {
 			fmt.Printf("WARN: invalid value (%v) for environment variable %v: %v; reverting to default value '%v'\n", envValue, envVar, err, s.defaultValue)
 			return &s.defaultValue
 		} else {
+			fmt.Printf("DEBUG: %v\n", validValue)
 			return &validValue
 		}
 	}

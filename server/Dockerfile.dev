@@ -7,5 +7,6 @@ COPY go.sum /app
 
 RUN go mod download
 RUN go install github.com/air-verse/air@latest
+RUN go install -tags 'postgres sqlite' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 CMD [ "air", "start" ]

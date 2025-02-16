@@ -3,6 +3,9 @@
 set -Ee
 export APP_NAME="gooru"
 export COMPOSE_PROJECT_NAME=${APP_NAME}
+export POSTGRES_DB="gooru"
+export POSTGRES_USER="gooru_dev"
+export POSTGRES_PASSWORD="gooru_pwd"
 
 is_windows=false
 if [ `uname` != "Darwin" ] && [ `uname` != "Linux" ]; then
@@ -18,10 +21,15 @@ case $1 in
     start )
         if [ "$2" = "cloud" ]; then
             echo "Starting cloud ${APP_NAME} stack..."
-            export DATABASE_BACKEND="postgres"
+            export GOORU_MODE="dev"
+            export GOORU_DB_CONNECTION="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@gooru-db:5432/${POSTGRES_DB}?sslmode=disable"
+            export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server postgres
         else
             echo "Starting local ${APP_NAME} stack..."
+            export GOORU_MODE="dev"
+            export GOORU_DB_CONNECTION="sqlite://booru.db"
+            export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server
         fi
         ./run.sh attach
