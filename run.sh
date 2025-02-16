@@ -110,6 +110,14 @@ case $1 in
         elif [ "$2" = "previous" ]; then
             ./run.sh migrate down $3 1
 
+        elif [ "$2" = "force" ]; then
+            if [ -z "$3" ]; then
+                echo "Must provide a version to force the database to."
+                exit 1
+            fi
+
+            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_BACKEND)' -database $(docker exec server printenv GOORU_DB_CONNECTION) force $3"
+
         elif [ "$2" = "help" ]; then
             echo -e "\n 'migrate' usage:"
             echo -e "\t create [sqlite|postgres] [<seq>] \t Creates a new up and down migration for the given database with the given sequence name."
@@ -117,6 +125,7 @@ case $1 in
             echo -e "\t down [{n}]  \t\t\t\t Runs all or {n} down migrations."
             echo -e "\t next \t\t\t\t\t Migrates the database to the next revision."
             echo -e "\t previous \t\t\t\t Migrates the database to the previous revision."
+            echo -e "\t force [{v}] \t\t\t\t Forces the database onto a specified {v} version".
 
         else 
             echo "Invalid option provided."
