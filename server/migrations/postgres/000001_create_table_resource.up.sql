@@ -1,5 +1,5 @@
 CREATE TABLE resource (
-    resource_id TEXT PRIMARY KEY,
+    resource_id uuid PRIMARY KEY,
     uri TEXT,
     bytes INTEGER
 )
