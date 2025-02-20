@@ -19,10 +19,10 @@ case $1 in
         if [ "$2" = "cloud" ]; then
             echo "Starting cloud ${APP_NAME} stack..."
             export DATABASE_BACKEND="postgres"
-            docker compose up -d --remove-orphans client server postgres
+            docker compose up --build -d --remove-orphans client server postgres
         else
             echo "Starting local ${APP_NAME} stack..."
-            docker compose up -d --remove-orphans client server
+            docker compose up --build -d --remove-orphans client server
         fi
         ./run.sh attach
         ;;

@@ -11,9 +11,10 @@ import (
 const appEnvPrefix = "GOORU"
 
 var Settings = struct {
-	Mode      setting[string]
-	DBConnStr setting[string]
-	Port      setting[int]
+	Mode        setting[string]
+	DBConnStr   setting[string]
+	Port        setting[int]
+	MaxFileSize setting[int]
 }{
 	Mode: setting[string]{
 		envVar:       "MODE",
@@ -47,6 +48,20 @@ var Settings = struct {
 				return 0, errors.New("out of valid port range (0 - 65535)")
 			}
 			return port, nil
+		},
+	},
+	MaxFileSize: setting[int]{
+		envVar:       "MAX_FILE_SIZE",
+		defaultValue: 100000,
+		initValue: func(maxFileSizeStr string) (int, error) {
+			maxFileSize, err := strconv.Atoi(maxFileSizeStr)
+			if err != nil {
+				return 0, err
+			}
+			if maxFileSize < 0 || maxFileSize > 1e9 {
+				return 0, errors.New("")
+			}
+			return maxFileSize, nil
 		},
 	},
 }

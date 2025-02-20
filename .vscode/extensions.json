@@ -1,8 +1,9 @@
 {
-    "recommendations": [
-        "golang.go",
-        "qwtel.sqlite-viewer",
-        "bradlc.vscode-tailwindcss",
-        "esbenp.prettier-vscode"
-    ]
+  "recommendations": [
+    "golang.go",
+    "qwtel.sqlite-viewer",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "eamodio.gitlens"
+  ]
 }

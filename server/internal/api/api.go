@@ -29,14 +29,15 @@ func (a *api) Server(port int) *http.Server {
 
 	return &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: stack(a.Routes()),
+		Handler: stack(a.routes()),
 	}
 }
 
-func (a *api) Routes() *http.ServeMux {
+func (a *api) routes() *http.ServeMux {
 	r := http.NewServeMux()
 
 	r.HandleFunc("GET /", a.getDebugHandler)
+	r.HandleFunc("GET /sandbox/test", a.getFile)
 
 	return r
 }
