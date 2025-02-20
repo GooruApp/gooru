@@ -5,17 +5,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/squirrel"
 	"go.uber.org/zap"
 )
 
 type api struct {
 	ctx    context.Context
 	logger *zap.Logger
+	db     squirrel.StatementBuilderType
 }
 
-func NewAPI(ctx context.Context, logger *zap.Logger) *api {
+func New(ctx context.Context, logger *zap.Logger, db squirrel.StatementBuilderType) *api {
 	return &api{
 		ctx:    ctx,
+		db:     db,
 		logger: logger,
 	}
 }

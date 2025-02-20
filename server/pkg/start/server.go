@@ -2,12 +2,14 @@ package start
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"fmt"
 
 	"github.com/GooruApp/gooru/server/internal/api"
 	"github.com/GooruApp/gooru/server/internal/config"
 	"github.com/GooruApp/gooru/server/migrations"
+	"github.com/Masterminds/squirrel"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -26,7 +28,12 @@ func Server(ctx context.Context) error {
 		return fmt.Errorf("error occured when running migrations: %v", err)
 	}
 
-	api := api.NewAPI(ctx, logger)
+	db, err := newDB(config.Settings.DBBackend.Get(), config.Settings.DBConnStr.Get())
+	if err != nil {
+		return fmt.Errorf("error occured when setting up db: %v", err)
+	}
+
+	api := api.New(ctx, logger, db)
 	srv := api.Server(config.Settings.Port.Get())
 
 	go func() { _ = srv.ListenAndServe() }()
@@ -83,6 +90,7 @@ func migrateUp(backend string, url string) error {
 	if err != nil {
 		return err
 	}
+	defer migrations.Close()
 
 	err = migrations.Up()
 	if err != nil && err != migrate.ErrNoChange {
@@ -90,4 +98,20 @@ func migrateUp(backend string, url string) error {
 	}
 
 	return nil
+}
+
+func newDB(backend string, url string) (squirrel.StatementBuilderType, error) {
+	pool, err := sql.Open(backend, url)
+	if err != nil {
+		return squirrel.StatementBuilderType{}, err
+	}
+
+	stmtCache := squirrel.NewStmtCache(pool)
+	db := squirrel.StatementBuilder.RunWith(stmtCache)
+
+	if backend == "postgres" {
+		db = db.PlaceholderFormat(squirrel.Dollar)
+	}
+
+	return db, nil
 }
