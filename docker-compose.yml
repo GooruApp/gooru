@@ -30,11 +30,13 @@ services:
     restart: unless-stopped
     environment:
       GOORU_MODE: ${GOORU_MODE:-dev}
-      GOORU_DB_CONNECTION: ${GOORU_DB_CONNECTION:-sqlite://booru.db}
-      GOORU_DB_BACKEND: ${GOORU_DB_BACKEND:-sqlite}
+      GOORU_DB_PROTOCOL: ${GOORU_DB_PROTOCOL:-sqlite}
+      GOORU_DB_PATH: ${GOORU_DB_PATH:-gooru.db}
+      GOORU_DB_CONNECTION: ${GOORU_DB_CONNECTION:-sqlite://gooru.db}
       GOORU_PORT: ${GOORU_PORT:-8000}
     volumes:
       - ./server:/app
+      - sqlite-data:/var/lib/gooru/gooru.db
     ports:
       - "${GOORU_PORT:-8000}:${GOORU_PORT:-8000}"
     logging: *logging-template
@@ -56,3 +58,4 @@ services:
 
 volumes:
   postgres-data:
+  sqlite-data:

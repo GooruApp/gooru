@@ -24,11 +24,11 @@ func Server(ctx context.Context) error {
 		return fmt.Errorf("couldn't create a new logger: %v", err)
 	}
 
-	if err := migrateUp(config.Settings.DBBackend.Get(), config.Settings.DBConnStr.Get()); err != nil {
+	if err := migrateUp(config.Settings.DBProtocol.Get(), config.Settings.DBConnStr.Get()); err != nil {
 		return fmt.Errorf("error occured when running migrations: %v", err)
 	}
 
-	db, err := newDB(config.Settings.DBBackend.Get(), config.Settings.DBConnStr.Get())
+	db, err := newDB(config.Settings.DBProtocol.Get(), config.Settings.DBPath.Get())
 	if err != nil {
 		return fmt.Errorf("error occured when setting up db: %v", err)
 	}
@@ -69,19 +69,19 @@ func newLogger(service string, appEnv string) (*zap.Logger, error) {
 	return logger, nil
 }
 
-func migrateUp(backend string, url string) error {
+func migrateUp(protocol string, url string) error {
 	var fs embed.FS
 
-	switch backend {
+	switch protocol {
 	case "sqlite":
 		fs = migrations.SQLiteMigrations
 	case "postgres":
 		fs = migrations.PGMigrations
 	default:
-		return fmt.Errorf("%s is not supported", backend)
+		return fmt.Errorf("%s is not supported", protocol)
 	}
 
-	source, err := iofs.New(fs, backend)
+	source, err := iofs.New(fs, protocol)
 	if err != nil {
 		return err
 	}
@@ -100,8 +100,14 @@ func migrateUp(backend string, url string) error {
 	return nil
 }
 
-func newDB(backend string, url string) (squirrel.StatementBuilderType, error) {
-	pool, err := sql.Open(backend, url)
+func newDB(protocol string, path string) (squirrel.StatementBuilderType, error) {
+	dbUrl := path
+
+	if protocol == "postgres" {
+		dbUrl = protocol + "://" + path
+	}
+
+	pool, err := sql.Open(protocol, dbUrl)
 	if err != nil {
 		return squirrel.StatementBuilderType{}, err
 	}
@@ -109,7 +115,7 @@ func newDB(backend string, url string) (squirrel.StatementBuilderType, error) {
 	stmtCache := squirrel.NewStmtCache(pool)
 	db := squirrel.StatementBuilder.RunWith(stmtCache)
 
-	if backend == "postgres" {
+	if protocol == "postgres" {
 		db = db.PlaceholderFormat(squirrel.Dollar)
 	}
 

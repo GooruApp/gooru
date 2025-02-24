@@ -11,10 +11,11 @@ import (
 const appEnvPrefix = "GOORU"
 
 var Settings = struct {
-	Mode      setting[string]
-	DBConnStr setting[string]
-	DBBackend setting[string]
-	Port      setting[int]
+	Mode       setting[string]
+	DBProtocol setting[string]
+	DBPath     setting[string]
+	DBConnStr  setting[string]
+	Port       setting[int]
 }{
 	Mode: setting[string]{
 		envVar:       "MODE",
@@ -26,24 +27,31 @@ var Settings = struct {
 			return mode, nil
 		},
 	},
+	DBProtocol: setting[string]{
+		envVar:       "DB_PROTOCOL",
+		defaultValue: "sqlite",
+		initValue: func(protocol string) (string, error) {
+			if protocol != "sqlite" && protocol != "postgres" {
+				return "", errors.New("invalid protocol, must be 'sqlite' or 'postgres'")
+			}
+			return protocol, nil
+		},
+	},
+	DBPath: setting[string]{
+		envVar:       "DB_PATH",
+		defaultValue: "gooru.db",
+		initValue: func(path string) (string, error) {
+			return path, nil
+		},
+	},
 	DBConnStr: setting[string]{
 		envVar:       "DB_CONNECTION",
-		defaultValue: "sqlite://booru.db",
+		defaultValue: "sqlite://gooru.db",
 		initValue: func(conn string) (string, error) {
 			if !strings.HasPrefix(conn, "sqlite://") && !strings.HasPrefix(conn, "postgres://") {
 				return "", errors.New("invalid protocol, must be 'sqlite' or 'postgres'")
 			}
 			return conn, nil
-		},
-	},
-	DBBackend: setting[string]{
-		envVar:       "DB_BACKEND",
-		defaultValue: "sqlite",
-		initValue: func(backend string) (string, error) {
-			if backend != "sqlite" && backend != "postgres" {
-				return "", errors.New("invalid backend, must be 'sqlite' or 'postgres'")
-			}
-			return backend, nil
 		},
 	},
 	Port: setting[int]{

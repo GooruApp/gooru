@@ -22,15 +22,17 @@ case $1 in
         if [ "$2" = "cloud" ]; then
             echo "Starting cloud ${APP_NAME} stack..."
             export GOORU_MODE="dev"
-            export GOORU_DB_CONNECTION="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@gooru-db:5432/${POSTGRES_DB}?sslmode=disable"
-            export GOORU_DB_BACKEND="postgres"
+            export GOORU_DB_PROTOCOL="postgres"
+            export GOORU_DB_PATH="${POSTGRES_USER}:${POSTGRES_PASSWORD}@gooru-db:5432/${POSTGRES_DB}?sslmode=disable"
+            export GOORU_DB_CONNECTION="${GOORU_DB_PROTOCOL}://${GOORU_DB_PATH}"
             export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server postgres
         else
             echo "Starting local ${APP_NAME} stack..."
             export GOORU_MODE="dev"
-            export GOORU_DB_CONNECTION="sqlite://booru.db"
-            export GOORU_DB_BACKEND="sqlite"
+            export GOORU_DB_PROTOCOL="sqlite"
+            export GOORU_DB_PATH="gooru.db"
+            export GOORU_DB_CONNECTION="${GOORU_DB_PROTOCOL}://${GOORU_DB_PATH}"
             export GOORU_PORT="8000"
             docker compose up -d --remove-orphans client server
         fi
@@ -102,7 +104,7 @@ case $1 in
             fi
 
         elif [ "$2" = "up" ] || [ "$2" = "down" ]; then
-            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_BACKEND)' -database $(docker exec server printenv GOORU_DB_CONNECTION) $2 $3"
+            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_PROTOCOL)' -database $(docker exec server printenv GOORU_DB_CONNECTION) $2 $3"
 
         elif [ "$2" = "next" ]; then
             ./run.sh migrate up $3 1
@@ -116,7 +118,7 @@ case $1 in
                 exit 1
             fi
 
-            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_BACKEND)' -database $(docker exec server printenv GOORU_DB_CONNECTION) force $3"
+            docker exec -it server sh -c "migrate -path 'migrations/$(docker exec server printenv GOORU_DB_PROTOCOL)' -database $(docker exec server printenv GOORU_DB_CONNECTION) force $3"
 
         elif [ "$2" = "help" ]; then
             echo -e "\n 'migrate' usage:"
