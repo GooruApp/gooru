@@ -15,6 +15,7 @@ var Settings = struct {
 	DBConnStr   setting[string]
 	Port        setting[int]
 	MaxFileSize setting[int]
+	BufferSize  setting[int]
 }{
 	Mode: setting[string]{
 		envVar:       "MODE",
@@ -52,16 +53,30 @@ var Settings = struct {
 	},
 	MaxFileSize: setting[int]{
 		envVar:       "MAX_FILE_SIZE",
-		defaultValue: 100000,
+		defaultValue: 1e5,
 		initValue: func(maxFileSizeStr string) (int, error) {
 			maxFileSize, err := strconv.Atoi(maxFileSizeStr)
 			if err != nil {
 				return 0, err
 			}
 			if maxFileSize < 0 || maxFileSize > 1e9 {
-				return 0, errors.New("")
+				return 0, errors.New("max file size must be a positive integer less than 1000000")
 			}
 			return maxFileSize, nil
+		},
+	},
+	BufferSize: setting[int]{
+		envVar:       "BUFFER_SIZE",
+		defaultValue: 64,
+		initValue: func(bufferSizeStr string) (int, error) {
+			bufferSize, err := strconv.Atoi(bufferSizeStr)
+			if err != nil {
+				return 0, err
+			}
+			if bufferSize < 4 || bufferSize > 512 {
+				return 0, errors.New("buffer size must be between 4kb and 512kb")
+			}
+			return bufferSize, nil
 		},
 	},
 }
